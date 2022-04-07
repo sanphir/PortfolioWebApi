@@ -19,7 +19,7 @@ namespace StudyProj.WebApp.Controllers
             _employeeMapper = employeeMapper;
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         [HttpGet("list")]
         public async Task<ActionResult<IEnumerable<EmployeeDTO>>> Get()
         {
@@ -28,7 +28,7 @@ namespace StudyProj.WebApp.Controllers
             return Ok(result);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<EmployeeDTO>> Get(Guid id)
         {
@@ -44,7 +44,7 @@ namespace StudyProj.WebApp.Controllers
 
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost("add")]
         public async Task<ActionResult<EmployeeDTO>> AddEmployee(NewEmployeeDTO newEmployee)
         {
@@ -63,7 +63,7 @@ namespace StudyProj.WebApp.Controllers
             }
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
+        [Authorize(Roles = "admin")]
         [HttpDelete]
         public async Task<ActionResult> RemoveEmployee(Guid id)
         {
