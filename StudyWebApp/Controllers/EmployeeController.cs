@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StudyProj.DAL.Models;
 using StudyProj.WebApp.DTO;
 using StudyProj.WebApp.Mappers;
 
 namespace StudyProj.WebApp.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class EmployeeController : ControllerBase
     {
         private readonly StudyDbContext _context;
@@ -22,14 +21,14 @@ namespace StudyProj.WebApp.Controllers
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("list")]
-        public async Task<ActionResult<IEnumerable<Employee>>> Get()
+        public async Task<ActionResult<IEnumerable<EmployeeDTO>>> Get()
         {
             var result = (await _context.Employees.ToListAsync()).Select(e => _employeeMapper.MapEmployeeDTO(e));
             var t = new string[] { };
             return Ok(result);
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("{id}")]
         public async Task<ActionResult<EmployeeDTO>> Get(Guid id)
         {
@@ -45,10 +44,9 @@ namespace StudyProj.WebApp.Controllers
 
         }
 
-        //[Authorize(Roles = "admin")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
         [HttpPost("add")]
-        public async Task<ActionResult> AddEmployee(NewEmployeeDTO newEmployee)
+        public async Task<ActionResult<EmployeeDTO>> AddEmployee(NewEmployeeDTO newEmployee)
         {
             var existingEmployee = _context.Employees.FirstOrDefault(r => r.Name == newEmployee.Name);
             if (existingEmployee == null)
@@ -57,7 +55,7 @@ namespace StudyProj.WebApp.Controllers
                 await _context.Employees.AddAsync(employee);
                 await _context.SaveChangesAsync();
 
-                return Ok();
+                return Ok(_employeeMapper.MapEmployeeDTO(employee));
             }
             else
             {
@@ -65,8 +63,7 @@ namespace StudyProj.WebApp.Controllers
             }
         }
 
-        //[Authorize(Roles = "admin")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
         [HttpDelete]
         public async Task<ActionResult> RemoveEmployee(Guid id)
         {

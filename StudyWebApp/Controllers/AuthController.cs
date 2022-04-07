@@ -13,13 +13,13 @@ namespace StudyProj.WebApp.Controllers
     {
         private readonly StudyDbContext _context;
         private readonly IPasswordHasher _passwordHasher;
-        private readonly IConfiguration _configuration;
+        private readonly IAuthOptions _authOptions;
 
-        public AuthController(StudyDbContext context, IPasswordHasher passwordHasher, IConfiguration configuration)
+        public AuthController(StudyDbContext context, IPasswordHasher passwordHasher, IAuthOptions authOptions)
         {
             _context = context;
             _passwordHasher = passwordHasher;
-            _configuration = configuration;
+            _authOptions = authOptions;
         }
 
         [HttpPost("/token")]
@@ -33,15 +33,15 @@ namespace StudyProj.WebApp.Controllers
             }
 
             var now = DateTime.UtcNow;
- 
+
 
             var jwt = new JwtSecurityToken(
-                    issuer: AuthOptions.Issuer,
-                    audience: AuthOptions.Audience,
+                    issuer: _authOptions.Issuer,
+                    audience: _authOptions.Audience,
                     notBefore: now,
                     claims: identity.Claims,
-                    expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LifeTime)),
-                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                    expires: now.Add(TimeSpan.FromMinutes(_authOptions.LifeTime)),
+                    signingCredentials: new SigningCredentials(_authOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
 
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
