@@ -5,54 +5,37 @@ namespace StudyProj.WebApp.Auth
 {
     public class AuthOptions : IAuthOptions
     {
-
-        ///// <summary>
-        ///// Token issuer
-        ///// </summary>
-        //public static readonly string Issuer = "NS";
-
-        ///// <summary>
-        ///// Audience
-        ///// </summary>
-        //public static readonly string Audience = "ALL";
-
-        ///// <summary>
-        ///// Encryption key
-        ///// </summary>
-        //public static readonly string Key = "vs3GO4T2uSGFgvLF";
-
-        ///// <summary>
-        ///// Token life time minutes
-        ///// </summary>
-        //public static readonly int LifeTime = 10;
-
+        private readonly string _issuer;
+        private readonly string _audience;
+        private readonly string _key;
+        private readonly int _lifeTime;
 
         /// <summary>
         /// Token issuer
         /// </summary>
-        public readonly string Issuer;
+        public string Issuer => _issuer;
 
         /// <summary>
         /// Audience
         /// </summary>
-        public readonly string Audience;
+        public string Audience => _audience;
 
         /// <summary>
         /// Encryption key
         /// </summary>
-        public readonly string Key;
+        public string Key => _key;
 
         /// <summary>
         /// Token life time minutes
         /// </summary>
-        public readonly int LifeTime;
+        public int LifeTime => _lifeTime;
 
         public AuthOptions(IConfiguration configuration)
         {
-            Issuer = configuration.GetSection("AuthOptions:Issuer")?.Value ?? throw new ArgumentException("Issuer not specify in the configuration file");
-            Audience = configuration.GetSection("AuthOptions:Audience")?.Value ?? throw new ArgumentException("Audience not specify in the configuration file");
-            Key = configuration.GetSection("AuthOptions:Key")?.Value ?? throw new ArgumentException("Token key not specify in the configuration file");
-            if (!int.TryParse(configuration.GetSection("AuthOptions:LifeTime")?.Value ?? "", out LifeTime))
+            _issuer = configuration.GetSection("AuthOptions:Issuer")?.Value ?? throw new ArgumentException("Issuer not specify in the configuration file");
+            _audience = configuration.GetSection("AuthOptions:Audience")?.Value ?? throw new ArgumentException("Audience not specify in the configuration file");
+            _key = configuration.GetSection("AuthOptions:Key")?.Value ?? throw new ArgumentException("Token key not specify in the configuration file");
+            if (!int.TryParse(configuration.GetSection("AuthOptions:LifeTime")?.Value ?? "", out _lifeTime))
             {
                 throw new ArgumentException("LifeTime not specify in the configuration file");
             }
