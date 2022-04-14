@@ -45,10 +45,16 @@ namespace StudyProj.WebApp.Controllers
 
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
+            //Response.Cookies.Append(key: "jwt", new CookiesOptions
+            //{
+            //    HttpOnly = true
+            //});
+
             var response = new
             {
                 accessToken = encodedJwt,
-                username = identity.Name,
+                userName = identity.Claims.FirstOrDefault()?.Value ?? "",
+                role = identity.Claims.LastOrDefault()?.Value ?? "",
                 validTo = jwt.ValidTo
             };
             return Json(response);

@@ -46,7 +46,8 @@ builder.Services.AddSwaggerGen(s =>
         }
     });
 });
-var authOptions = new AuthOptions(builder.Configuration);
+IConfiguration configuration = builder.Configuration;
+var authOptions = new AuthOptions(configuration);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -65,6 +66,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+                          {
+                              policy.WithOrigins((configuration.GetSection("CORS:Allowed").Value ?? "").Split(","))
+                                                  .AllowAnyHeader()
+                                                  .AllowAnyMethod();
+                                                  //.AllowCredentials();
+                          });
+});
+
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<IEmployeeMapper, EmployeeMapper>();
 builder.Services.AddSingleton<IAuthOptions>(authOptions);
@@ -77,6 +89,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors();
 
 app.UseHttpsRedirection();
 
