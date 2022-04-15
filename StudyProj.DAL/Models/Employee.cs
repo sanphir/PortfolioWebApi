@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations;
 namespace StudyProj.DAL.Models
 {
     [Index(nameof(Name), IsUnique = true)]
-    public class Employee
+    public class Employee : BaseEntity
     {
         [Key]
         public Guid Id { get; set; }
-        
+
         /// <summary>
         /// Login name
         /// </summary>        
@@ -23,9 +23,6 @@ namespace StudyProj.DAL.Models
         public DateTime BirthDate { get; set; }
 
         public double Salary { get; set; }
-        
-        public DateTime CreatedDate { get; set; }
 
-        public DateTime LastModifiedDate { get; set; }
     }
 }
