@@ -35,7 +35,7 @@ namespace StudyProj.WebApp.Auth
             _issuer = configuration.GetSection("AuthOptions:Issuer")?.Value ?? throw new ArgumentException("Issuer not specify in the configuration file");
             _audience = configuration.GetSection("AuthOptions:Audience")?.Value ?? throw new ArgumentException("Audience not specify in the configuration file");
             _key = configuration.GetSection("AuthOptions:Key")?.Value ?? throw new ArgumentException("Token key not specify in the configuration file");
-            if (!int.TryParse(configuration.GetSection("AuthOptions:LifeTime")?.Value ?? "", out _lifeTime))
+            if (!int.TryParse(configuration.GetSection("AuthOptions:LifeTimeMinutes")?.Value ?? "", out _lifeTime))
             {
                 throw new ArgumentException("LifeTime not specify in the configuration file");
             }

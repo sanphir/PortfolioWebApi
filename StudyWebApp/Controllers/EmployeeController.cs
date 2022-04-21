@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudyProj.WebApp.DTO;
 using StudyProj.WebApp.Mappers;
+using System.Linq;
 
 namespace StudyProj.WebApp.Controllers
 {
@@ -23,6 +24,9 @@ namespace StudyProj.WebApp.Controllers
         [HttpGet("list")]
         public async Task<ActionResult<IEnumerable<EmployeeDTO>>> Get()
         {
+            //Loader testing
+            //await Task.Delay(3000);
+
             var result = (await _context.Employees.ToListAsync()).Select(e => _employeeMapper.MapEmployeeDTO(e));
             var t = new string[] { };
             return Ok(result);
@@ -63,22 +67,50 @@ namespace StudyProj.WebApp.Controllers
             }
         }
 
-        [Authorize(Roles = "admin")]
-        [HttpDelete]
-        public async Task<ActionResult> RemoveEmployee(Guid id)
+        [Authorize]
+        [HttpPut("update")]
+        public async Task<ActionResult<EmployeeDTO>> Update(UpdateEmployeeDTO employeeDTO)
         {
-            var employee = await _context.Employees.FindAsync(id);
+            var employee = await _context.Employees.FindAsync(employeeDTO.Id);
             if (employee != null)
             {
-                _context.Employees.Remove(employee);
+                //TO DO
+                //should we update Name if it using for login?
+                employee.Name = employeeDTO.Name;
+
+                employee.Email = employeeDTO.Email;
+                employee.BirthDate = employeeDTO.BirthDate;
+                employee.Salary = employeeDTO.Salary;
+
                 await _context.SaveChangesAsync();
-                return Ok();
+                return Ok(_employeeMapper.MapEmployeeDTO(employee));
             }
             else
             {
-                return BadRequest($"Employee with id=\"{id}\"  not  found");
+                return BadRequest($"Employee with id=\"{employeeDTO.Id}\"  not  found");
             }
 
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpDelete]
+        public async Task<ActionResult> RemoveEmployee(IEnumerable<Guid> idsToRemove)
+        {
+            try
+            {
+                var employees = _context.Employees.Where(r => idsToRemove.Contains(r.Id));
+                if (employees != null)
+                {
+                    _context.Employees.RemoveRange(employees);
+                }
+
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }
