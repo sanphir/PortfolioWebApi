@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StudyProj.WebApp.Auth;
+using StudyProj.WebApp.Helpers;
 using StudyProj.WebApp.Mappers;
 using StudyProj.WebApp.Security;
 
@@ -12,7 +13,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new DateTimeConverter { });
+});
+
 builder.Services.AddDbContext<StudyDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -46,6 +51,7 @@ builder.Services.AddSwaggerGen(s =>
         }
     });
 });
+
 IConfiguration configuration = builder.Configuration;
 var authOptions = new AuthOptions(configuration);
 
@@ -73,7 +79,7 @@ builder.Services.AddCors(options =>
                               policy.WithOrigins((configuration.GetSection("CORS:Allowed").Value ?? "").Split(","))
                                                   .AllowAnyHeader()
                                                   .AllowAnyMethod();
-                                                  //.AllowCredentials();
+                              //.AllowCredentials();
                           });
 });
 

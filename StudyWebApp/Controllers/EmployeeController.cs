@@ -28,7 +28,6 @@ namespace StudyProj.WebApp.Controllers
             //await Task.Delay(3000);
 
             var result = (await _context.Employees.ToListAsync()).Select(e => _employeeMapper.MapEmployeeDTO(e));
-            var t = new string[] { };
             return Ok(result);
         }
 
