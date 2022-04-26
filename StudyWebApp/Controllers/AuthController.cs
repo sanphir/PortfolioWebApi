@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using StudyProj.DAL.Models;
 using StudyProj.WebApp.Auth;
 using StudyProj.WebApp.Security;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,12 +15,39 @@ namespace StudyProj.WebApp.Controllers
         private readonly StudyDbContext _context;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IAuthOptions _authOptions;
+        private readonly IConfiguration _configuration;
+        private readonly bool _addDefaultAdmin;
 
-        public AuthController(StudyDbContext context, IPasswordHasher passwordHasher, IAuthOptions authOptions)
+        public AuthController(StudyDbContext context, IPasswordHasher passwordHasher, IAuthOptions authOptions, IConfiguration configuration)
         {
             _context = context;
             _passwordHasher = passwordHasher;
             _authOptions = authOptions;
+            _configuration = configuration;
+
+            bool.TryParse(_configuration.GetSection("DB:AddDefaultAdmin")?.Value ?? "false", out _addDefaultAdmin);
+            CheckDefaultAdmin();
+        }
+
+        private void CheckDefaultAdmin()
+        {
+            if (_addDefaultAdmin)
+            {
+                if (!_context.Employees.Any(x => x.Role == "admin"))
+                {
+                    var defaultAdmin = new Employee
+                    {
+                        Name = "admin",
+                        Email = "admin@fake.mail.com",
+                        Password = _passwordHasher.Hash("admin"),
+                        Role = "admin",
+                        BirthDate = DateTime.Now,
+                        Salary = 1
+                    };
+                    _context.Employees.Add(defaultAdmin);
+                    _context.SaveChanges();
+                }
+            }
         }
 
         [HttpPost("/token")]
