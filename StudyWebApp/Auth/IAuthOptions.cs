@@ -22,8 +22,14 @@ namespace StudyProj.WebApp.Auth
         /// <summary>
         /// Token life time minutes
         /// </summary>
-        int LifeTime { get; }
+        int AccessTokenLifeTimeMinutes { get; }
 
+        /// <summary>
+        /// Refresh token life time in hours
+        /// </summary>
+        int RefreshTokenLifeTimeHours { get; }
+
+        TokenValidationParameters GetTokenValidationParameters();
         SymmetricSecurityKey GetSymmetricSecurityKey();
     }
 }

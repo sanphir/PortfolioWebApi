@@ -35,6 +35,7 @@ namespace StudyProj.WebApp.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<EmployeeDTO>> Get(Guid id)
         {
+            await Task.Delay(3000);
             var employee = await _context.Employees.FindAsync(id);
             if (employee != null)
             {

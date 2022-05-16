@@ -59,17 +59,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = authOptions.Issuer,
-            ValidateAudience = true,
-            ValidAudience = authOptions.Audience,
-            ValidateLifetime = true,
-
-            IssuerSigningKey = authOptions.GetSymmetricSecurityKey(),
-            ValidateIssuerSigningKey = true,
-        };
+        options.TokenValidationParameters = authOptions.GetTokenValidationParameters();
     });
 
 builder.Services.AddCors(options =>
@@ -86,6 +76,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<IEmployeeMapper, EmployeeMapper>();
 builder.Services.AddSingleton<IAuthOptions>(authOptions);
+builder.Services.AddSingleton<ITokenService, TokenService>();
 
 var app = builder.Build();
 

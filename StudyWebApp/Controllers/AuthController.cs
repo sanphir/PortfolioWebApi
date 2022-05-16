@@ -1,28 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using StudyProj.DAL.Models;
-using StudyProj.WebApp.Auth;
 using StudyProj.WebApp.Security;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace StudyProj.WebApp.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class AuthController : Controller
     {
         private readonly StudyDbContext _context;
         private readonly IPasswordHasher _passwordHasher;
-        private readonly IAuthOptions _authOptions;
+        private readonly ITokenService _tokenService;
         private readonly IConfiguration _configuration;
         private readonly bool _addDefaultAdmin;
 
-        public AuthController(StudyDbContext context, IPasswordHasher passwordHasher, IAuthOptions authOptions, IConfiguration configuration)
+        public AuthController(StudyDbContext context, IPasswordHasher passwordHasher, ITokenService tokenService, IConfiguration configuration)
         {
             _context = context;
             _passwordHasher = passwordHasher;
-            _authOptions = authOptions;
+            _tokenService = tokenService;
             _configuration = configuration;
 
             bool.TryParse(_configuration.GetSection("DB:AddDefaultAdmin")?.Value ?? "false", out _addDefaultAdmin);
@@ -50,7 +47,7 @@ namespace StudyProj.WebApp.Controllers
             }
         }
 
-        [HttpPost("/token")]
+        [HttpPost("token")]
         public IActionResult Token(string username, string password)
         {
             var identity = GetIdentity(username, password);
@@ -59,19 +56,7 @@ namespace StudyProj.WebApp.Controllers
             {
                 return BadRequest(new { errorText = "Invalid username or password." });
             }
-
-            var now = DateTime.UtcNow;
-
-
-            var jwt = new JwtSecurityToken(
-                    issuer: _authOptions.Issuer,
-                    audience: _authOptions.Audience,
-                    notBefore: now,
-                    claims: identity.Claims,
-                    expires: now.Add(TimeSpan.FromMinutes(_authOptions.LifeTime)),
-                    signingCredentials: new SigningCredentials(_authOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-
-            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+            var encodedJwt = _tokenService.GenerateToken(identity);
 
             //Response.Cookies.Append(key: "jwt", new CookiesOptions
             //{
@@ -81,11 +66,26 @@ namespace StudyProj.WebApp.Controllers
             var response = new
             {
                 accessToken = encodedJwt,
-                userName = identity.Claims.FirstOrDefault()?.Value ?? "",
-                role = identity.Claims.LastOrDefault()?.Value ?? "",
-                validTo = jwt.ValidTo
+                refreshToken = "",
+                //userName = identity.Claims.FirstOrDefault()?.Value ?? "",
+                //role = identity.Claims.LastOrDefault()?.Value ?? "",
+                //validTo = jwt.ValidTo
             };
             return Json(response);
+        }
+
+        [HttpPost("refreshToken")]
+        public IActionResult RefreshToken(string accessToken, string refreshToken)
+        {
+            /*            var tokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateAudience = true,
+                            ValidateIssuer = true,
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = _authOptions.GetSymmetricSecurityKey(),
+                            ValidateLifetime = false //here we are saying that we don't care about the token's expiration date
+                        };*/
+            return Ok();
         }
 
         private ClaimsIdentity GetIdentity(string username, string password)
@@ -96,8 +96,8 @@ namespace StudyProj.WebApp.Controllers
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, employee.Name),
-                    new Claim(ClaimsIdentity.DefaultRoleClaimType, employee.Role)
+                    new Claim("name", employee.Name),
+                    new Claim("role", employee.Role)
                 };
 
                 return new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
