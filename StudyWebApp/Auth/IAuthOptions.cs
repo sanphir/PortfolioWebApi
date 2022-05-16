@@ -29,7 +29,7 @@ namespace StudyProj.WebApp.Auth
         /// </summary>
         int RefreshTokenLifeTimeHours { get; }
 
-        TokenValidationParameters GetTokenValidationParameters();
+        TokenValidationParameters GetTokenValidationParameters(bool validateLifetime = true);
         SymmetricSecurityKey GetSymmetricSecurityKey();
     }
 }

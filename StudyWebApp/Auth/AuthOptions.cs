@@ -58,7 +58,7 @@ namespace StudyProj.WebApp.Auth
             }
         }
 
-        public TokenValidationParameters GetTokenValidationParameters()
+        public TokenValidationParameters GetTokenValidationParameters(bool validateLifetime = true)
         {
             return new TokenValidationParameters
             {
@@ -66,7 +66,7 @@ namespace StudyProj.WebApp.Auth
                 ValidIssuer = Issuer,
                 ValidateAudience = true,
                 ValidAudience = Audience,
-                ValidateLifetime = true,
+                ValidateLifetime = validateLifetime,
 
                 IssuerSigningKey = GetSymmetricSecurityKey(),
                 ValidateIssuerSigningKey = true,
