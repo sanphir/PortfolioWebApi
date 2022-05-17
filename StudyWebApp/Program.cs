@@ -2,7 +2,6 @@ global using Microsoft.EntityFrameworkCore;
 global using StudyProj.DAL;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StudyProj.WebApp.Auth;
 using StudyProj.WebApp.Helpers;
@@ -66,10 +65,10 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
                           {
-                              policy.WithOrigins((configuration.GetSection("CORS:Allowed").Value ?? "").Split(",").Select(r=> r.Trim()).ToArray())
+                              policy.WithOrigins((configuration.GetSection("CORS:Allowed").Value ?? "").Split(",").Select(r => r.Trim()).ToArray())
                                                   .AllowAnyHeader()
-                                                  .AllowAnyMethod();
-                              //.AllowCredentials();
+                                                  .AllowAnyMethod()
+                                                  .AllowCredentials();
                           });
 });
 

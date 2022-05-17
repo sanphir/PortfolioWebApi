@@ -78,7 +78,7 @@ namespace StudyProj.WebApp.Security
                 var claims = new List<Claim>
                 {
                     new Claim("name", name),
-                    new Claim("name", "refresh")
+                    new Claim("type", "refresh")
                 };
 
                 return new ClaimsIdentity(claims, "Token", "name", "role");

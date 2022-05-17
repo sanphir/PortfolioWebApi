@@ -18,7 +18,9 @@ namespace StudyProj.WebApp.Controllers
         private const string COOKIES_KEY_NAME = "name";
         private readonly CookieOptions _cookieOptions = new()
         {
-            HttpOnly = true
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None
         };
 
         public AuthController(StudyDbContext context, IPasswordHasher passwordHasher, ITokenService tokenService, IConfiguration configuration)
