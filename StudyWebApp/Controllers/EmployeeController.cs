@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudyProj.WebApp.DTO;
 using StudyProj.WebApp.Mappers;
-using System.Linq;
 
 namespace StudyProj.WebApp.Controllers
 {
@@ -35,7 +33,7 @@ namespace StudyProj.WebApp.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<EmployeeDTO>> Get(Guid id)
         {
-            await Task.Delay(3000);
+            //await Task.Delay(3000);
             var employee = await _context.Employees.FindAsync(id);
             if (employee != null)
             {
