@@ -19,7 +19,7 @@ namespace Portfolio.WebApi.Controllers
         }
 
         [Authorize]
-        [HttpGet("list")]
+        [HttpGet("all")]
         public async Task<ActionResult<IEnumerable<EmployeeDTO>>> Get()
         {
             //Loader testing

@@ -44,7 +44,7 @@ namespace Portfolio.WebApi.Controllers
 
             var accessToken = ProduceAccessToken(authEmployee);
 
-            return Json(new { accessToken });
+            return Json(new { accessToken, employeeId = authEmployee.Id });
         }
 
         [HttpPost("refreshToken")]
@@ -70,7 +70,7 @@ namespace Portfolio.WebApi.Controllers
                 }
                 var newAccessToken = ProduceAccessToken(employee);
 
-                return Json(new { accessToken = newAccessToken });
+                return Json(new { accessToken = newAccessToken, employeeId });
             }
             catch (SecurityTokenException stex)
             {

@@ -20,7 +20,7 @@ namespace Portfolio.WebApi.Controllers
         }
 
         [Authorize]
-        [HttpGet("list")]
+        [HttpGet("all")]
         public async Task<ActionResult<IEnumerable<WorkTaskDTO>>> Get()
         {
             var result = (await _context.WorkTasks.ToListAsync()).Select(r => _workTaskMapper.MapWorkTaskDTO(r));
@@ -38,6 +38,16 @@ namespace Portfolio.WebApi.Controllers
             }
 
             return Ok(_workTaskMapper.MapWorkTaskDTO(result));
+        }
+
+        [Authorize]
+        [HttpGet("allFor/{id}")]
+        public async Task<ActionResult<IEnumerable<WorkTaskDTO>>> GetAllFor(Guid id)
+        {
+            var result = (await _context.WorkTasks.Where(r => (r.AssignedTo != null && r.AssignedTo.Id == id)
+                                                              || (r.Owner != null && r.Owner.Id == id))
+                        .ToListAsync()).Select(r => _workTaskMapper.MapWorkTaskDTO(r));
+            return Ok(result);
         }
 
         [Authorize]
