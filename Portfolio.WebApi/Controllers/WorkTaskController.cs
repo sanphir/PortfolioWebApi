@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portfolio.WebApi.DTO;
+using Portfolio.WebApi.Helpers;
 using Portfolio.WebApi.Mappers;
 
 namespace Portfolio.WebApi.Controllers
@@ -48,7 +49,7 @@ namespace Portfolio.WebApi.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(dto.Owner))
+                if (string.IsNullOrEmpty(dto.Owner) || !dto.Owner.IsGuid() || dto.Owner.IsEmptyGuid())
                 {
                     dto.Owner = Request.Cookies[CookiesKeys.EMPLOYEE_ID];
                 }

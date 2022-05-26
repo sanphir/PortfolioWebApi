@@ -1,5 +1,6 @@
 ﻿using Portfolio.DAL.Models;
 using Portfolio.WebApi.DTO;
+using Portfolio.WebApi.Helpers;
 
 namespace Portfolio.WebApi.Mappers
 {
@@ -29,8 +30,18 @@ namespace Portfolio.WebApi.Mappers
 
         public WorkTask MapWorkTask(NewWorkTaskDTO dto)
         {
-            var assignedEmployee = _context.Employees.Find(dto.AssignedTo);
-            var ownerEmployee = _context.Employees.Find(dto.Owner);
+            Employee assignedEmployee = null;
+            if (dto.AssignedTo.IsGuid() && Guid.TryParse(dto.AssignedTo, out Guid assignedToId))
+            {
+                assignedEmployee = _context.Employees.Find(assignedToId);
+            }
+
+            Employee ownerEmployee = null;
+            if (dto.Owner.IsGuid() && Guid.TryParse(dto.Owner, out Guid ownerId))
+            {
+                ownerEmployee = _context.Employees.Find(ownerId);
+            }
+
             return new WorkTask
             {
                 Title = dto.Title,
@@ -43,19 +54,28 @@ namespace Portfolio.WebApi.Mappers
             };
         }
 
-        public void MapToExists(UpdateWorkTaskDTO from, WorkTask to)
+        public void MapToExists(UpdateWorkTaskDTO fromDto, WorkTask toModel)
         {
-            to.Title = from.Title;
-            to.Content = from.Content;
-            to.PlanedCompletedAt = from.CompletedAt;
-            to.CompletedAt = from.CompletedAt;
-            to.Status = from.Status;
+            toModel.Title = fromDto.Title;
+            toModel.Content = fromDto.Content;
+            toModel.PlanedCompletedAt = fromDto.CompletedAt;
+            toModel.CompletedAt = fromDto.CompletedAt;
+            toModel.Status = fromDto.Status;
 
-            var assignedEmployee = _context.Employees.Find(to.AssignedTo);
-            var ownerEmployee = _context.Employees.Find(to.Owner);
+            Employee assignedEmployee = null;
+            if (fromDto.AssignedTo.IsGuid() && Guid.TryParse(fromDto.AssignedTo, out Guid assignedToId))
+            {
+                assignedEmployee = _context.Employees.Find(assignedToId);
+            }
 
-            to.AssignedTo = assignedEmployee;
-            to.Owner = ownerEmployee;
+            Employee ownerEmployee = null;
+            if (fromDto.Owner.IsGuid() && Guid.TryParse(fromDto.Owner, out Guid ownerId))
+            {
+                ownerEmployee = _context.Employees.Find(ownerId);
+            }
+
+            toModel.AssignedTo = assignedEmployee;
+            toModel.Owner = ownerEmployee;
         }
     }
 }

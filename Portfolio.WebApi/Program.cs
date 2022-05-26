@@ -74,7 +74,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<IEmployeeMapper, EmployeeMapper>();
-builder.Services.AddSingleton<IWorkTaskMapper, WorkTaskMapper>();
+builder.Services.AddScoped<IWorkTaskMapper, WorkTaskMapper>();
 builder.Services.AddSingleton<IAuthOptions>(authOptions);
 builder.Services.AddSingleton<ITokenService, TokenService>();
 
