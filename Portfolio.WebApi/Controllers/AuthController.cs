@@ -14,8 +14,6 @@ namespace Portfolio.WebApi.Controllers
         private readonly ITokenService _tokenService;
         private readonly IConfiguration _configuration;
         private readonly bool _addDefaultAdmin;
-        private const string COOKIES_KEY_REFRESH_TOKEN = "refreshToken";
-        private const string COOKIES_KEY_NAME = "name";
         private readonly CookieOptions _cookieOptions = new()
         {
             HttpOnly = true,
@@ -52,9 +50,9 @@ namespace Portfolio.WebApi.Controllers
         [HttpPost("refreshToken")]
         public IActionResult RefreshToken(string accessToken)
         {
-            var refreshToken = Request.Cookies[COOKIES_KEY_REFRESH_TOKEN];
-            var name = Request.Cookies[COOKIES_KEY_NAME];
-            var employee = _context.Employees.FirstOrDefault(x => x.Name == name);
+            var refreshToken = Request.Cookies[CookiesKeys.REFRESH_TOKEN];
+            var employeeId = Guid.Parse(Request.Cookies[CookiesKeys.EMPLOYEE_ID]);
+            var employee = _context.Employees.Find(employeeId);
 
             if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(accessToken) || employee == null)
             {
@@ -78,7 +76,7 @@ namespace Portfolio.WebApi.Controllers
             {
                 return Unauthorized(stex.Message);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return BadRequest();
             }
@@ -89,8 +87,9 @@ namespace Portfolio.WebApi.Controllers
             var accessToken = _tokenService.GenerateToken(emplyee);
             var refreshToken = _tokenService.GenerateRefreshToken(emplyee);
 
-            Response.Cookies.Append(COOKIES_KEY_REFRESH_TOKEN, refreshToken, _cookieOptions);
-            Response.Cookies.Append(COOKIES_KEY_NAME, emplyee.Name, _cookieOptions);
+            Response.Cookies.Append(CookiesKeys.REFRESH_TOKEN, refreshToken, _cookieOptions);
+            Response.Cookies.Append(CookiesKeys.EMPLOYEE_NAME, emplyee.Name, _cookieOptions);
+            Response.Cookies.Append(CookiesKeys.EMPLOYEE_ID, emplyee.Id.ToString(), _cookieOptions);
 
             return accessToken;
         }
