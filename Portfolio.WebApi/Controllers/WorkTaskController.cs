@@ -28,16 +28,29 @@ namespace Portfolio.WebApi.Controllers
         }
 
         [Authorize]
-        [HttpGet("assigndeToUser/{id}")]
-        public async Task<ActionResult<IEnumerable<WorkTaskDTO>>> GetAssignedToUserTasks(Guid id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<IEnumerable<WorkTaskDTO>>> Get(Guid id)
+        {
+            var result = await _context.WorkTasks.FindAsync(id);
+            if (result == null)
+            {
+                return BadRequest($"WorkTask id={id} not found");
+            }
+
+            return Ok(_workTaskMapper.MapWorkTaskDTO(result));
+        }
+
+        [Authorize]
+        [HttpGet("assigndeTo/{id}")]
+        public async Task<ActionResult<IEnumerable<WorkTaskDTO>>> GetAssignedTo(Guid id)
         {
             var result = (await _context.WorkTasks.Where(r => r.AssignedTo != null && r.AssignedTo.Id == id).ToListAsync()).Select(r => _workTaskMapper.MapWorkTaskDTO(r));
             return Ok(result);
         }
 
         [Authorize]
-        [HttpGet("createdByUser/{id}")]
-        public async Task<ActionResult<IEnumerable<WorkTaskDTO>>> GetCreatedByUserTasks(Guid id)
+        [HttpGet("createdBy/{id}")]
+        public async Task<ActionResult<IEnumerable<WorkTaskDTO>>> GetCreatedBy(Guid id)
         {
             var result = (await _context.WorkTasks.Where(r => r.Owner != null && r.Owner.Id == id).ToListAsync()).Select(r => _workTaskMapper.MapWorkTaskDTO(r));
             return Ok(result);
@@ -45,7 +58,7 @@ namespace Portfolio.WebApi.Controllers
 
         [Authorize]
         [HttpPost("add")]
-        public async Task<ActionResult<WorkTaskDTO>> CreateWorkTask(NewWorkTaskDTO dto)
+        public async Task<ActionResult<WorkTaskDTO>> Add(NewWorkTaskDTO dto)
         {
             try
             {
@@ -67,7 +80,7 @@ namespace Portfolio.WebApi.Controllers
 
         [Authorize]
         [HttpPut("update")]
-        public async Task<ActionResult<WorkTaskDTO>> UpdateTask(UpdateWorkTaskDTO dto)
+        public async Task<ActionResult<WorkTaskDTO>> Update(UpdateWorkTaskDTO dto)
         {
             try
             {
@@ -89,7 +102,7 @@ namespace Portfolio.WebApi.Controllers
 
         [Authorize]
         [HttpDelete]
-        public async Task<ActionResult> RemoveWorkTask(IEnumerable<Guid> idsToRemove)
+        public async Task<ActionResult> Remove(IEnumerable<Guid> idsToRemove)
         {
             try
             {
