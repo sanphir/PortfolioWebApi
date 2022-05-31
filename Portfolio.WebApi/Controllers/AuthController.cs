@@ -50,6 +50,11 @@ namespace Portfolio.WebApi.Controllers
         [HttpPost("refreshToken")]
         public IActionResult RefreshToken(string accessToken)
         {
+            if (string.IsNullOrEmpty(Request.Cookies[CookiesKeys.EMPLOYEE_ID]) || string.IsNullOrEmpty(Request.Cookies[CookiesKeys.REFRESH_TOKEN]))
+            {
+                return Unauthorized();
+            }
+
             var refreshToken = Request.Cookies[CookiesKeys.REFRESH_TOKEN];
             var employeeId = Guid.Parse(Request.Cookies[CookiesKeys.EMPLOYEE_ID]);
             var employee = _context.Employees.Find(employeeId);
@@ -80,6 +85,16 @@ namespace Portfolio.WebApi.Controllers
             {
                 return BadRequest();
             }
+        }
+
+        [HttpPost("signout")]
+        public IActionResult Signout()
+        {
+            Response.Cookies.Delete(CookiesKeys.REFRESH_TOKEN, _cookieOptions);
+            Response.Cookies.Delete(CookiesKeys.EMPLOYEE_NAME, _cookieOptions);
+            Response.Cookies.Delete(CookiesKeys.EMPLOYEE_ID, _cookieOptions);
+
+            return Ok();
         }
 
         private string ProduceAccessToken(Employee emplyee)
