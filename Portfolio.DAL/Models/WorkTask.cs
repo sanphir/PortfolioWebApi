@@ -12,7 +12,9 @@ namespace Portfolio.DAL.Models
         [MaxLength(200)]
         public string Content { get; set; }
 
-        public DateTime PlanedCompletedAt { get; set; }
+        public DateTime DueDate { get; set; }
+
+        public DateTime? StartedAt { get; set; }
 
         public DateTime? CompletedAt { get; set; }
 

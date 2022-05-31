@@ -18,7 +18,8 @@ namespace Portfolio.WebApi.Mappers
                 Id = workTask.Id,
                 Title = workTask.Title,
                 Content = workTask.Content,
-                PlanedCompletedAt = workTask.PlanedCompletedAt,
+                DueDate = workTask.DueDate,
+                StartedAt = workTask.StartedAt,
                 CompletedAt = workTask.CompletedAt,
                 Status = workTask.Status,
                 Owner = workTask.Owner?.Id.ToString() ?? "",
@@ -48,7 +49,8 @@ namespace Portfolio.WebApi.Mappers
             {
                 Title = dto.Title,
                 Content = dto.Content,
-                PlanedCompletedAt = dto.PlanedCompletedAt,
+                DueDate = dto.DueDate,
+                StartedAt = dto.StartedAt,
                 CompletedAt = dto.CompletedAt,
                 Status = dto.Status,
                 Owner = ownerEmployee,
@@ -60,7 +62,8 @@ namespace Portfolio.WebApi.Mappers
         {
             toModel.Title = fromDto.Title;
             toModel.Content = fromDto.Content;
-            toModel.PlanedCompletedAt = fromDto.PlanedCompletedAt;
+            toModel.DueDate = fromDto.DueDate;
+            toModel.StartedAt = fromDto.StartedAt;
             toModel.CompletedAt = fromDto.CompletedAt;
             toModel.Status = fromDto.Status;
 

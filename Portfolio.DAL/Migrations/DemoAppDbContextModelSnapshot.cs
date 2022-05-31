@@ -73,7 +73,7 @@ namespace Portfolio.DAL.Migrations
                     b.Property<Guid?>("AssignedToId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CompletedAt")
+                    b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Content")
@@ -83,13 +83,16 @@ namespace Portfolio.DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("OwnerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("PlanedCompletedAt")
+                    b.Property<DateTime?>("StartedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
