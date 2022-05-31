@@ -4,7 +4,7 @@
     {
         Canceled = 0,
         Registered = 1,
-        Stared = 2,
+        Started = 2,
         Completed = 3
     }
 }

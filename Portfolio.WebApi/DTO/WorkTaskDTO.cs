@@ -10,7 +10,7 @@ namespace Portfolio.WebApi.DTO
 
         public DateTime PlanedCompletedAt { get; set; }
 
-        public DateTime CompletedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
 
         public WorkTaskStatus Status { get; set; }
 
@@ -26,6 +26,9 @@ namespace Portfolio.WebApi.DTO
 
     public class WorkTaskDTO : UpdateWorkTaskDTO
     {
+        public string OwnerName { get; set; }
+
+        public string AssignedToName { get; set; }
 
         public DateTime CreatedDate { get; set; }
 

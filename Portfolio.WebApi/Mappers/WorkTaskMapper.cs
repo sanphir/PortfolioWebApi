@@ -18,11 +18,13 @@ namespace Portfolio.WebApi.Mappers
                 Id = workTask.Id,
                 Title = workTask.Title,
                 Content = workTask.Content,
-                PlanedCompletedAt = workTask.CompletedAt,
+                PlanedCompletedAt = workTask.PlanedCompletedAt,
                 CompletedAt = workTask.CompletedAt,
                 Status = workTask.Status,
                 Owner = workTask.Owner?.Id.ToString() ?? "",
+                OwnerName = workTask.Owner?.Name ?? "",
                 AssignedTo = workTask.AssignedTo?.Id.ToString() ?? "",
+                AssignedToName = workTask.AssignedTo?.Name ?? "",
                 CreatedDate = workTask.CreatedDate,
                 LastModifiedDate = workTask.LastModifiedDate
             };
@@ -46,7 +48,7 @@ namespace Portfolio.WebApi.Mappers
             {
                 Title = dto.Title,
                 Content = dto.Content,
-                PlanedCompletedAt = dto.CompletedAt,
+                PlanedCompletedAt = dto.PlanedCompletedAt,
                 CompletedAt = dto.CompletedAt,
                 Status = dto.Status,
                 Owner = ownerEmployee,
@@ -58,7 +60,7 @@ namespace Portfolio.WebApi.Mappers
         {
             toModel.Title = fromDto.Title;
             toModel.Content = fromDto.Content;
-            toModel.PlanedCompletedAt = fromDto.CompletedAt;
+            toModel.PlanedCompletedAt = fromDto.PlanedCompletedAt;
             toModel.CompletedAt = fromDto.CompletedAt;
             toModel.Status = fromDto.Status;
 

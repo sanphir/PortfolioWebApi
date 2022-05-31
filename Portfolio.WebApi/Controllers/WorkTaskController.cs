@@ -44,9 +44,13 @@ namespace Portfolio.WebApi.Controllers
         [HttpGet("allFor/{id}")]
         public async Task<ActionResult<IEnumerable<WorkTaskDTO>>> GetAllFor(Guid id)
         {
-            var result = (await _context.WorkTasks.Where(r => (r.AssignedTo != null && r.AssignedTo.Id == id)
-                                                              || (r.Owner != null && r.Owner.Id == id))
-                        .ToListAsync()).Select(r => _workTaskMapper.MapWorkTaskDTO(r));
+            var result = (await _context.WorkTasks
+                .Include(task => task.Owner)
+                .Include(task => task.AssignedTo)
+                .Where(r => (r.AssignedTo != null && r.AssignedTo.Id == id)
+                            || (r.Owner != null && r.Owner.Id == id))
+                        .ToListAsync())
+                        .Select(r => _workTaskMapper.MapWorkTaskDTO(r));
             return Ok(result);
         }
 
@@ -54,7 +58,12 @@ namespace Portfolio.WebApi.Controllers
         [HttpGet("assigndeTo/{id}")]
         public async Task<ActionResult<IEnumerable<WorkTaskDTO>>> GetAssignedTo(Guid id)
         {
-            var result = (await _context.WorkTasks.Where(r => r.AssignedTo != null && r.AssignedTo.Id == id).ToListAsync()).Select(r => _workTaskMapper.MapWorkTaskDTO(r));
+            var result = (await _context.WorkTasks
+                .Include(task => task.Owner)
+                .Include(task => task.AssignedTo)
+                .Where(r => r.AssignedTo != null && r.AssignedTo.Id == id)
+                    .ToListAsync())
+                    .Select(r => _workTaskMapper.MapWorkTaskDTO(r));
             return Ok(result);
         }
 
@@ -62,7 +71,12 @@ namespace Portfolio.WebApi.Controllers
         [HttpGet("createdBy/{id}")]
         public async Task<ActionResult<IEnumerable<WorkTaskDTO>>> GetCreatedBy(Guid id)
         {
-            var result = (await _context.WorkTasks.Where(r => r.Owner != null && r.Owner.Id == id).ToListAsync()).Select(r => _workTaskMapper.MapWorkTaskDTO(r));
+            var result = (await _context.WorkTasks
+                .Include(task => task.Owner)
+                .Include(task => task.AssignedTo)
+                .Where(r => r.Owner != null && r.Owner.Id == id)
+                    .ToListAsync())
+                    .Select(r => _workTaskMapper.MapWorkTaskDTO(r));
             return Ok(result);
         }
 

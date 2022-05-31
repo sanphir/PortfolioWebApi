@@ -14,7 +14,7 @@ namespace Portfolio.DAL.Models
 
         public DateTime PlanedCompletedAt { get; set; }
 
-        public DateTime CompletedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
 
         public WorkTaskStatus Status { get; set; }
 
