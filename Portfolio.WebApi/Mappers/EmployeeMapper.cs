@@ -20,7 +20,7 @@ namespace Portfolio.WebApi.Mappers
                 Email = employee.Email,
                 BirthDate = employee.BirthDate,
                 Salary = employee.Salary,
-                Role = employee.Role.ToString().ToLower(),
+                Role = employee.Role,
                 CreatedDate = employee.CreatedDate,
                 LastModifiedDate = employee.LastModifiedDate
             };
@@ -28,19 +28,12 @@ namespace Portfolio.WebApi.Mappers
 
         public Employee MapNewEmployee(NewEmployeeDTO newEmployee)
         {
-            var role = newEmployee.Role.ToLower() switch
-            {
-                "admin" => Role.Admin,
-                "user" => Role.User,
-                _ => Role.User
-            };
-
             return new Employee
             {
                 Name = newEmployee.Name,
                 Email = newEmployee.Email,
                 Password = _passwordHasher.Hash(newEmployee.Password),
-                Role = role,
+                Role = newEmployee.Role,
                 BirthDate = newEmployee.BirthDate,
                 Salary = newEmployee.Salary
             };

@@ -1,4 +1,6 @@
-﻿namespace Portfolio.WebApi.DTO
+﻿using Portfolio.DAL.Models;
+
+namespace Portfolio.WebApi.DTO
 {
     public class BaseEmployeeDTO
     {
@@ -6,7 +8,7 @@
 
         public string Email { get; set; } = string.Empty;
 
-        public string Role { get; set; } = string.Empty;
+        public Role Role { get; set; }
 
         public DateTime BirthDate { get; set; }
 

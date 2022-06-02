@@ -50,8 +50,6 @@ namespace Portfolio.WebApi.Mappers
                 Title = dto.Title,
                 Content = dto.Content,
                 DueDate = dto.DueDate,
-                StartedAt = dto.StartedAt,
-                CompletedAt = dto.CompletedAt,
                 Status = dto.Status,
                 Owner = ownerEmployee,
                 AssignedTo = assignedEmployee
@@ -63,8 +61,6 @@ namespace Portfolio.WebApi.Mappers
             toModel.Title = fromDto.Title;
             toModel.Content = fromDto.Content;
             toModel.DueDate = fromDto.DueDate;
-            toModel.StartedAt = fromDto.StartedAt;
-            toModel.CompletedAt = fromDto.CompletedAt;
             toModel.Status = fromDto.Status;
 
             Employee assignedEmployee = null;

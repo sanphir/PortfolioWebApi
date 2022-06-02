@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Portfolio.DAL.Models;
 using Portfolio.WebApi.DTO;
 using Portfolio.WebApi.Helpers;
 using Portfolio.WebApi.Mappers;
@@ -12,11 +14,12 @@ namespace Portfolio.WebApi.Controllers
     {
         private readonly DemoAppDbContext _context;
         private readonly IWorkTaskMapper _workTaskMapper;
-
-        public WorkTaskController(DemoAppDbContext context, IWorkTaskMapper workTaskMapper)
+        private readonly IValidator<WorkTask> _validator;
+        public WorkTaskController(DemoAppDbContext context, IValidator<WorkTask> validator, IWorkTaskMapper workTaskMapper)
         {
             _context = context;
             _workTaskMapper = workTaskMapper;
+            _validator = validator;
         }
 
         [Authorize]
@@ -92,6 +95,24 @@ namespace Portfolio.WebApi.Controllers
                 }
 
                 var workTask = _workTaskMapper.MapWorkTask(dto);
+
+                switch (dto.Status)
+                {
+                    case WorkTaskStatus.Started:
+                        workTask.StartedAt = DateTime.Now;
+                        break;
+                    case WorkTaskStatus.Completed:
+                        workTask.CompletedAt = DateTime.Now;
+                        break;
+                };
+
+                var validateResult = _validator.Validate(workTask);
+                if (!validateResult.IsValid)
+                {
+                    var messages = string.Join("; ", validateResult.Errors.Select(e => $"{e.PropertyName}: \"{e.ErrorMessage}\"").ToArray());
+                    return BadRequest($"Work task validation error: {messages}");
+                }
+
                 _context.WorkTasks.Add(workTask);
                 await _context.SaveChangesAsync();
                 return Ok(_workTaskMapper.MapWorkTaskDTO(workTask));
@@ -114,7 +135,29 @@ namespace Portfolio.WebApi.Controllers
                     return BadRequest($"WorkTask \"{dto.Title}\" with id={dto.Id} not found");
                 }
 
+                var prevStatus = workTask.Status;
                 _workTaskMapper.MapToExists(from: dto, to: workTask);
+
+                if (prevStatus != workTask.Status)
+                {
+                    switch (dto.Status)
+                    {
+                        case WorkTaskStatus.Started:
+                            workTask.StartedAt = DateTime.Now;
+                            break;
+                        case WorkTaskStatus.Completed:
+                            workTask.CompletedAt = DateTime.Now;
+                            break;
+                    };
+                }
+
+                var validateResult = _validator.Validate(workTask);
+                if (!validateResult.IsValid)
+                {
+                    var messages = string.Join("; ", validateResult.Errors.Select(e => $"{e.PropertyName}: \"{e.ErrorMessage}\"").ToArray());
+                    return BadRequest($"Work task validation error: {messages}");
+                }
+
                 await _context.SaveChangesAsync();
                 return Ok(_workTaskMapper.MapWorkTaskDTO(workTask));
             }

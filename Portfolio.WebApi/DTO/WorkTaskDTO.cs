@@ -10,10 +10,6 @@ namespace Portfolio.WebApi.DTO
 
         public DateTime DueDate { get; set; }
 
-        public DateTime? StartedAt { get; set; }
-
-        public DateTime? CompletedAt { get; set; }
-
         public WorkTaskStatus Status { get; set; }
 
         public string Owner { get; set; }
@@ -31,6 +27,10 @@ namespace Portfolio.WebApi.DTO
         public string OwnerName { get; set; }
 
         public string AssignedToName { get; set; }
+
+        public DateTime? StartedAt { get; set; }
+
+        public DateTime? CompletedAt { get; set; }
 
         public DateTime CreatedDate { get; set; }
 

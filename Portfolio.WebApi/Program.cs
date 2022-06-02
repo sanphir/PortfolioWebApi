@@ -1,12 +1,14 @@
 global using Microsoft.EntityFrameworkCore;
 global using Portfolio.DAL;
-
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using Portfolio.DAL.Models;
 using Portfolio.WebApi.Auth;
 using Portfolio.WebApi.Helpers;
 using Portfolio.WebApi.Mappers;
 using Portfolio.WebApi.Security;
+using Portfolio.WebApi.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +74,8 @@ builder.Services.AddCors(options =>
                           });
 });
 
+builder.Services.AddScoped<IValidator<Employee>, EmployeeValidator>();
+builder.Services.AddScoped<IValidator<WorkTask>, WorkTaskValidator>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<IEmployeeMapper, EmployeeMapper>();
 builder.Services.AddScoped<IWorkTaskMapper, WorkTaskMapper>();
