@@ -9,7 +9,7 @@ namespace Portfolio.DAL.Models
         public string Title { get; set; }
 
 
-        [MaxLength(200)]
+        [MaxLength(500)]
         public string Content { get; set; }
 
         public DateTime DueDate { get; set; }
