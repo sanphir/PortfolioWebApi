@@ -21,7 +21,25 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 builder.Services.AddDbContext<DemoAppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    var dbProvider = (builder.Configuration.GetSection("DB:Provider").Value ?? "").Trim().ToLower();
+    switch (dbProvider)
+    {
+        case "sqlite":
+            options.UseSqlite("Filename=DemoApp.db");
+            break;
+        case "mssql":
+        case "microsoftsqlserver":
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+             sqlServerOptionsAction: sqlOptions =>
+             {
+                 sqlOptions.EnableRetryOnFailure(
+                 maxRetryCount: 10,
+                 maxRetryDelay: TimeSpan.FromSeconds(30),
+                 errorNumbersToAdd: null);
+             });
+            break;
+        default: throw new ArgumentException("Unsupported DB provider in section \"DB:Provider\". Please set it to any of the following values: \"sqlite\", \"mssql\".");
+    }
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -100,5 +118,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<DemoAppDbContext>();
+    dbContext.Database.EnsureCreated();
+}
 
 app.Run();

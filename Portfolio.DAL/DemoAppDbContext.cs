@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Portfolio.DAL.Models;
 
 namespace Portfolio.DAL
@@ -10,8 +11,10 @@ namespace Portfolio.DAL
      */
     public class DemoAppDbContext : DbContext
     {
-        public DemoAppDbContext(DbContextOptions<DemoAppDbContext> options) : base(options)
+        private readonly IConfiguration _configuration;
+        public DemoAppDbContext(DbContextOptions<DemoAppDbContext> options, IConfiguration configuration) : base(options)
         {
+            _configuration = configuration;
         }
 
         public DbSet<Employee> Employees { get; set; }
