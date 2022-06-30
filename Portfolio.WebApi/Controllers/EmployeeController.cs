@@ -14,12 +14,14 @@ namespace Portfolio.WebApi.Controllers
         private readonly DemoAppDbContext _context;
         private readonly IEmployeeMapper _employeeMapper;
         private readonly IValidator<Employee> _validator;
+        private readonly IConfiguration _configuration;
 
-        public EmployeeController(DemoAppDbContext context, IValidator<Employee> validator, IEmployeeMapper employeeMapper)
+        public EmployeeController(DemoAppDbContext context, IValidator<Employee> validator, IEmployeeMapper employeeMapper, IConfiguration configuration)
         {
             _context = context;
             _employeeMapper = employeeMapper;
             _validator = validator;
+            _configuration = configuration;
         }
 
         [Authorize]
@@ -54,6 +56,14 @@ namespace Portfolio.WebApi.Controllers
         [HttpPost("add")]
         public async Task<ActionResult<EmployeeDTO>> AddEmployee(NewEmployeeDTO newEmployee)
         {
+            if (int.TryParse(_configuration.GetSection("Options:EmployeesLimit")?.Value ?? "100", out int employeesLimit))
+            {
+                if (_context.Employees.Count() >= employeesLimit)
+                {
+                    return BadRequest($"You have reached the limit over {employeesLimit} employees");
+                }
+            }
+
             var existingEmployee = _context.Employees.FirstOrDefault(r => r.Name == newEmployee.Name);
             if (existingEmployee == null)
             {

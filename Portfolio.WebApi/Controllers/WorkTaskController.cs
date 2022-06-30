@@ -15,11 +15,13 @@ namespace Portfolio.WebApi.Controllers
         private readonly DemoAppDbContext _context;
         private readonly IWorkTaskMapper _workTaskMapper;
         private readonly IValidator<WorkTask> _validator;
-        public WorkTaskController(DemoAppDbContext context, IValidator<WorkTask> validator, IWorkTaskMapper workTaskMapper)
+        private readonly IConfiguration _configuration;
+        public WorkTaskController(DemoAppDbContext context, IValidator<WorkTask> validator, IWorkTaskMapper workTaskMapper, IConfiguration configuration)
         {
             _context = context;
             _workTaskMapper = workTaskMapper;
             _validator = validator;
+            _configuration = configuration;
         }
 
         [Authorize]
@@ -89,6 +91,14 @@ namespace Portfolio.WebApi.Controllers
         {
             try
             {
+                if (int.TryParse(_configuration.GetSection("Options:WorkTasksLimit")?.Value ?? "100", out int workTasksLimit))
+                {
+                    if (_context.Employees.Count() >= workTasksLimit)
+                    {
+                        return BadRequest($"You have reached the limit over {workTasksLimit} work tasks");
+                    }
+                }
+
                 if (string.IsNullOrEmpty(dto.Owner) || !dto.Owner.IsGuid() || dto.Owner.IsEmptyGuid())
                 {
                     dto.Owner = Request.Cookies[CookiesKeys.EMPLOYEE_ID];
