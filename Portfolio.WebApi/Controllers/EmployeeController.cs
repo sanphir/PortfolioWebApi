@@ -118,21 +118,15 @@ namespace Portfolio.WebApi.Controllers
         [HttpDelete]
         public async Task<ActionResult> RemoveEmployee(IEnumerable<Guid> idsToRemove)
         {
-            try
+            var employees = _context.Employees.Where(r => idsToRemove.Contains(r.Id));
+            if (employees != null)
             {
-                var employees = _context.Employees.Where(r => idsToRemove.Contains(r.Id));
-                if (employees != null)
-                {
-                    _context.Employees.RemoveRange(employees);
-                }
+                _context.Employees.RemoveRange(employees);
+            }
 
-                await _context.SaveChangesAsync();
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            await _context.SaveChangesAsync();
+            return Ok();
+
         }
     }
 }

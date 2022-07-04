@@ -7,6 +7,7 @@ using Portfolio.DAL.Models;
 using Portfolio.WebApi.Auth;
 using Portfolio.WebApi.Helpers;
 using Portfolio.WebApi.Mappers;
+using Portfolio.WebApi.Middleware;
 using Portfolio.WebApi.Security;
 using Portfolio.WebApi.Validation;
 
@@ -116,6 +117,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 

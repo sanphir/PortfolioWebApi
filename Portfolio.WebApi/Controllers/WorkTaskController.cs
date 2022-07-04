@@ -89,23 +89,59 @@ namespace Portfolio.WebApi.Controllers
         [HttpPost("add")]
         public async Task<ActionResult<WorkTaskDTO>> Add(NewWorkTaskDTO dto)
         {
-            try
+            if (int.TryParse(_configuration.GetSection("Options:WorkTasksLimit")?.Value ?? "100", out int workTasksLimit))
             {
-                if (int.TryParse(_configuration.GetSection("Options:WorkTasksLimit")?.Value ?? "100", out int workTasksLimit))
+                if (_context.Employees.Count() >= workTasksLimit)
                 {
-                    if (_context.Employees.Count() >= workTasksLimit)
-                    {
-                        return BadRequest($"You have reached the limit over {workTasksLimit} work tasks");
-                    }
+                    return BadRequest($"You have reached the limit over {workTasksLimit} work tasks");
                 }
+            }
 
-                if (string.IsNullOrEmpty(dto.Owner) || !dto.Owner.IsGuid() || dto.Owner.IsEmptyGuid())
-                {
-                    dto.Owner = Request.Cookies[CookiesKeys.EMPLOYEE_ID];
-                }
+            if (string.IsNullOrEmpty(dto.Owner) || !dto.Owner.IsGuid() || dto.Owner.IsEmptyGuid())
+            {
+                dto.Owner = Request.Cookies[CookiesKeys.EMPLOYEE_ID];
+            }
 
-                var workTask = _workTaskMapper.MapWorkTask(dto);
+            var workTask = _workTaskMapper.MapWorkTask(dto);
 
+            switch (dto.Status)
+            {
+                case WorkTaskStatus.Started:
+                    workTask.StartedAt = DateTime.Now;
+                    break;
+                case WorkTaskStatus.Completed:
+                    workTask.CompletedAt = DateTime.Now;
+                    break;
+            };
+
+            var validateResult = _validator.Validate(workTask);
+            if (!validateResult.IsValid)
+            {
+                var messages = string.Join("; ", validateResult.Errors.Select(e => $"{e.PropertyName}: \"{e.ErrorMessage}\"").ToArray());
+                return BadRequest($"Work task validation error: {messages}");
+            }
+
+            _context.WorkTasks.Add(workTask);
+            await _context.SaveChangesAsync();
+            return Ok(_workTaskMapper.MapWorkTaskDTO(workTask));
+
+        }
+
+        [Authorize]
+        [HttpPut("update")]
+        public async Task<ActionResult<WorkTaskDTO>> Update(UpdateWorkTaskDTO dto)
+        {
+            var workTask = _context.WorkTasks.Find(dto.Id);
+            if (workTask == null)
+            {
+                return BadRequest($"WorkTask \"{dto.Title}\" with id={dto.Id} not found");
+            }
+
+            var prevStatus = workTask.Status;
+            _workTaskMapper.MapToExists(from: dto, to: workTask);
+
+            if (prevStatus != workTask.Status)
+            {
                 switch (dto.Status)
                 {
                     case WorkTaskStatus.Started:
@@ -115,87 +151,32 @@ namespace Portfolio.WebApi.Controllers
                         workTask.CompletedAt = DateTime.Now;
                         break;
                 };
-
-                var validateResult = _validator.Validate(workTask);
-                if (!validateResult.IsValid)
-                {
-                    var messages = string.Join("; ", validateResult.Errors.Select(e => $"{e.PropertyName}: \"{e.ErrorMessage}\"").ToArray());
-                    return BadRequest($"Work task validation error: {messages}");
-                }
-
-                _context.WorkTasks.Add(workTask);
-                await _context.SaveChangesAsync();
-                return Ok(_workTaskMapper.MapWorkTaskDTO(workTask));
             }
-            catch (Exception ex)
+
+            var validateResult = _validator.Validate(workTask);
+            if (!validateResult.IsValid)
             {
-                return BadRequest(ex.Message);
+                var messages = string.Join("; ", validateResult.Errors.Select(e => $"{e.PropertyName}: \"{e.ErrorMessage}\"").ToArray());
+                return BadRequest($"Work task validation error: {messages}");
             }
-        }
 
-        [Authorize]
-        [HttpPut("update")]
-        public async Task<ActionResult<WorkTaskDTO>> Update(UpdateWorkTaskDTO dto)
-        {
-            try
-            {
-                var workTask = _context.WorkTasks.Find(dto.Id);
-                if (workTask == null)
-                {
-                    return BadRequest($"WorkTask \"{dto.Title}\" with id={dto.Id} not found");
-                }
+            await _context.SaveChangesAsync();
+            return Ok(_workTaskMapper.MapWorkTaskDTO(workTask));
 
-                var prevStatus = workTask.Status;
-                _workTaskMapper.MapToExists(from: dto, to: workTask);
-
-                if (prevStatus != workTask.Status)
-                {
-                    switch (dto.Status)
-                    {
-                        case WorkTaskStatus.Started:
-                            workTask.StartedAt = DateTime.Now;
-                            break;
-                        case WorkTaskStatus.Completed:
-                            workTask.CompletedAt = DateTime.Now;
-                            break;
-                    };
-                }
-
-                var validateResult = _validator.Validate(workTask);
-                if (!validateResult.IsValid)
-                {
-                    var messages = string.Join("; ", validateResult.Errors.Select(e => $"{e.PropertyName}: \"{e.ErrorMessage}\"").ToArray());
-                    return BadRequest($"Work task validation error: {messages}");
-                }
-
-                await _context.SaveChangesAsync();
-                return Ok(_workTaskMapper.MapWorkTaskDTO(workTask));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
         }
 
         [Authorize]
         [HttpDelete]
         public async Task<ActionResult> Remove(IEnumerable<Guid> idsToRemove)
         {
-            try
+            var workTasks = _context.WorkTasks.Where(r => idsToRemove.Contains(r.Id));
+            if (workTasks != null)
             {
-                var workTasks = _context.WorkTasks.Where(r => idsToRemove.Contains(r.Id));
-                if (workTasks != null)
-                {
-                    _context.WorkTasks.RemoveRange(workTasks);
-                }
+                _context.WorkTasks.RemoveRange(workTasks);
+            }
 
-                await _context.SaveChangesAsync();
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            await _context.SaveChangesAsync();
+            return Ok();
         }
     }
 }
