@@ -46,7 +46,7 @@ namespace Portfolio.WebApi.Controllers
 
             var accessToken = ProduceAccessToken(authEmployee);
 
-            _logger.LogInformation("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: User \"{username}\" got new token", DateTimeOffset.UtcNow, username);
+            _logger.LogInformation("{requestMethod}:{requestPath}: User \"{username}\" got new token", Request.Method, Request.Path, username);
 
             return Json(new { accessToken, employeeId = authEmployee.Id });
         }
@@ -99,7 +99,7 @@ namespace Portfolio.WebApi.Controllers
             Response.Cookies.Delete(CookiesKeys.EMPLOYEE_NAME, _cookieOptions);
             Response.Cookies.Delete(CookiesKeys.EMPLOYEE_ID, _cookieOptions);
 
-            _logger.LogInformation("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: User \"{username}\" was sign out", DateTimeOffset.UtcNow, username);
+            _logger.LogInformation("{requestMethod}:{requestPath}: User \"{username}\" was sign out", Request.Method, Request.Path, username);
             return Ok();
         }
 

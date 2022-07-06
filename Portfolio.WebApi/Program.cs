@@ -10,6 +10,8 @@ using Portfolio.WebApi.Mappers;
 using Portfolio.WebApi.Middleware;
 using Portfolio.WebApi.Security;
 using Portfolio.WebApi.Validation;
+using Serilog;
+using Ilogger = Serilog.ILogger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,6 +95,17 @@ builder.Services.AddCors(options =>
                           });
 });
 
+
+var logOutPutTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss:fffff} {Level:u3}] {Message:lj}{NewLine}{Exception}";
+builder.Logging.ClearProviders();
+Ilogger logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.File("logs\\log_.log", rollingInterval: RollingInterval.Day, shared: true, outputTemplate: logOutPutTemplate)
+    .WriteTo.Console(outputTemplate: logOutPutTemplate)
+    .CreateLogger();
+builder.Logging.AddSerilog(logger);
+builder.Services.AddSingleton(logger);
+
 builder.Services.AddScoped<IValidator<Employee>, EmployeeValidator>();
 builder.Services.AddScoped<IValidator<WorkTask>, WorkTaskValidator>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
@@ -104,11 +117,11 @@ builder.Services.AddSingleton<ITokenService, TokenService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (app.Environment.IsDevelopment())
+//{
+app.UseSwagger();
+app.UseSwaggerUI();
+//}
 
 app.UseCors();
 

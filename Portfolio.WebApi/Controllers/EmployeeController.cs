@@ -50,7 +50,7 @@ namespace Portfolio.WebApi.Controllers
             }
             else
             {
-                _logger.LogWarning("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Employee with id=\"{id}\"  not  found", DateTimeOffset.UtcNow, id);
+                _logger.LogWarning("{requestMethod}:{requestPath}: Employee with id=\"{id}\"  not  found", Request.Method, Request.Path, id.ToString());
                 return BadRequest($"Employee with id=\"{id}\"  not  found");
             }
 
@@ -64,7 +64,7 @@ namespace Portfolio.WebApi.Controllers
             {
                 if (_context.Employees.Count() >= employeesLimit)
                 {
-                    _logger.LogWarning("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Add: Was reached the limit over {employeesLimit} employees", DateTimeOffset.UtcNow, employeesLimit);
+                    _logger.LogWarning("{requestMethod}:{requestPath}: Was reached the limit over {employeesLimit} employees", Request.Method, Request.Path, JsonSerializer.Serialize(employeesLimit));
                     return BadRequest($"You have reached the limit over {employeesLimit} employees");
                 }
             }
@@ -82,7 +82,7 @@ namespace Portfolio.WebApi.Controllers
                 await _context.Employees.AddAsync(employee);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Add: Employee was added \"{employee}\"", DateTimeOffset.UtcNow, JsonSerializer.Serialize(employee));
+                _logger.LogInformation("{requestMethod}:{requestPath}: Employee was added \"{employee}\"", Request.Method, Request.Path, JsonSerializer.Serialize(employee));
 
                 return Ok(_employeeMapper.MapEmployeeDTO(employee));
             }
@@ -113,13 +113,13 @@ namespace Portfolio.WebApi.Controllers
 
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Update: Employee was updated \"{employee}\"", DateTimeOffset.UtcNow, JsonSerializer.Serialize(employee));
+                _logger.LogInformation("{requestMethod}:{requestPath}: Employee was updated \"{employee}\"", Request.Method, Request.Path, JsonSerializer.Serialize(employee));
 
                 return Ok(_employeeMapper.MapEmployeeDTO(employee));
             }
             else
             {
-                _logger.LogWarning("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Update: Employee with id=\"{id}\" not found", DateTimeOffset.UtcNow, employeeDTO.Id);
+                _logger.LogWarning("{requestMethod}:{requestPath}: Employee with id=\"{id}\" not found", Request.Method, Request.Path, employeeDTO.Id);
 
                 return BadRequest($"Employee with id=\"{employeeDTO.Id}\" not found");
             }
@@ -133,7 +133,7 @@ namespace Portfolio.WebApi.Controllers
             var employees = _context.Employees.Where(r => idsToRemove.Contains(r.Id));
             if (!employees.Any())
             {
-                _logger.LogWarning("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Remove: Employee with id in {notFoundedIds} not found", DateTimeOffset.UtcNow, JsonSerializer.Serialize(idsToRemove));
+                _logger.LogWarning("{requestMethod}:{requestPath}: Remove: Employee with id in {notFoundedIds} not found", Request.Method, Request.Path, JsonSerializer.Serialize(idsToRemove));
                 return BadRequest($"Employee with id in {JsonSerializer.Serialize(idsToRemove)} not found");
             }
 
@@ -142,7 +142,7 @@ namespace Portfolio.WebApi.Controllers
                 _context.Employees.RemoveRange(employees);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Remove: Employees with id in {idsToRemove} was deleted", DateTimeOffset.UtcNow, JsonSerializer.Serialize(idsToRemove));
+                _logger.LogInformation("{requestMethod}:{requestPath}: Remove: Employees with id in {idsToRemove} was deleted", Request.Method, Request.Path, JsonSerializer.Serialize(idsToRemove));
 
                 return Ok();
             }
@@ -151,7 +151,7 @@ namespace Portfolio.WebApi.Controllers
                 var employeesIds = employees.Select(e => e.Id);
                 var notFoundedIds = idsToRemove.Where(r => !employeesIds.Contains(r));
 
-                _logger.LogWarning("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Remove: Employee with id in {notFoundedIds} not found", DateTimeOffset.UtcNow, JsonSerializer.Serialize(notFoundedIds));
+                _logger.LogWarning("{requestMethod}:{requestPath}: Remove: Employee with id in {notFoundedIds} not found", Request.Method, Request.Path, JsonSerializer.Serialize(notFoundedIds));
                 return BadRequest($"Employee with id in {JsonSerializer.Serialize(notFoundedIds)} not found");
             }
         }

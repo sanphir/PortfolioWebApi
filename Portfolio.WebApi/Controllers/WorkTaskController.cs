@@ -96,7 +96,7 @@ namespace Portfolio.WebApi.Controllers
             {
                 if (_context.Employees.Count() >= workTasksLimit)
                 {
-                    _logger.LogWarning("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Add: Was reached the limit over {workTasksLimit} work tasks", DateTimeOffset.UtcNow, workTasksLimit);
+                    _logger.LogWarning("{requestMethod}:{requestPath}: Add: Was reached the limit over {workTasksLimit} work tasks", Request.Method, Request.Path, workTasksLimit);
                     return BadRequest($"You have reached the limit over {workTasksLimit} work tasks");
                 }
             }
@@ -128,7 +128,7 @@ namespace Portfolio.WebApi.Controllers
             _context.WorkTasks.Add(workTask);
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Work task was added {workTask}", DateTimeOffset.UtcNow, JsonSerializer.Serialize(workTask));
+            _logger.LogInformation("{requestMethod}:{requestPath}: Work task was added {workTask}", Request.Method, Request.Path, JsonSerializer.Serialize(workTask));
 
             return Ok(_workTaskMapper.MapWorkTaskDTO(workTask));
 
@@ -169,7 +169,7 @@ namespace Portfolio.WebApi.Controllers
 
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Work task was updated {workTask}", DateTimeOffset.UtcNow, JsonSerializer.Serialize(workTask));
+            _logger.LogInformation("{requestMethod}:{requestPath}: Work task was updated {workTask}", Request.Method, Request.Path, JsonSerializer.Serialize(workTask));
 
             return Ok(_workTaskMapper.MapWorkTaskDTO(workTask));
 
@@ -183,7 +183,7 @@ namespace Portfolio.WebApi.Controllers
 
             if (!workTasks.Any())
             {
-                _logger.LogWarning("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Remove: Work task with id in {notFoundedIds} not found", DateTimeOffset.UtcNow, JsonSerializer.Serialize(idsToRemove));
+                _logger.LogWarning("{requestMethod}:{requestPath}: Remove: Work task with id in {notFoundedIds} not found", Request.Method, Request.Path, JsonSerializer.Serialize(idsToRemove));
                 return BadRequest($"Work task with id in {JsonSerializer.Serialize(idsToRemove)} not found");
             }
 
@@ -192,7 +192,7 @@ namespace Portfolio.WebApi.Controllers
                 _context.WorkTasks.RemoveRange(workTasks);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Work tasks with id in {idsToRemove} was removed", DateTimeOffset.UtcNow, JsonSerializer.Serialize(idsToRemove));
+                _logger.LogInformation("{requestMethod}:{requestPath}: Work tasks with id in {idsToRemove} was removed", Request.Method, Request.Path, JsonSerializer.Serialize(idsToRemove));
 
                 return Ok();
             }
@@ -201,7 +201,7 @@ namespace Portfolio.WebApi.Controllers
                 var workTasksIds = workTasks.Select(e => e.Id);
                 var notFoundedIds = idsToRemove.Where(r => !workTasksIds.Contains(r));
 
-                _logger.LogWarning("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: Remove: Work tasks with id in {notFoundedIds} not found", DateTimeOffset.UtcNow, JsonSerializer.Serialize(notFoundedIds));
+                _logger.LogWarning("{requestMethod}:{requestPath}: Remove: Work tasks with id in {notFoundedIds} not found", Request.Method, Request.Path, JsonSerializer.Serialize(notFoundedIds));
                 return BadRequest($"Work tasks with id in {JsonSerializer.Serialize(notFoundedIds)} not found");
             }
         }
