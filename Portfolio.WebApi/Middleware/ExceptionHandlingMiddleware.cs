@@ -27,7 +27,7 @@ namespace Portfolio.WebApi.Middleware
         }
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            _logger.LogError(exception, "Error");
+            _logger.LogError(exception, "{datetime:yyyy-MM-dd HH:mm:ss:fffff}: ERROR", DateTimeOffset.UtcNow);
 
             context.Response.ContentType = "application/json";
             var response = context.Response;

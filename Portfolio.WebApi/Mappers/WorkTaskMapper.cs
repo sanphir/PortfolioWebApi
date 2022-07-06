@@ -76,7 +76,10 @@ namespace Portfolio.WebApi.Mappers
             }
 
             toModel.AssignedTo = assignedEmployee;
-            toModel.Owner = ownerEmployee;
+            if (ownerEmployee != null)
+            {
+                toModel.Owner = ownerEmployee;
+            }
         }
     }
 }

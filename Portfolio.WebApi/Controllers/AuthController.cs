@@ -13,6 +13,7 @@ namespace Portfolio.WebApi.Controllers
         private readonly IPasswordHasher _passwordHasher;
         private readonly ITokenService _tokenService;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<AuthController> _logger;
         private readonly bool _addDefaultAdmin;
         private readonly CookieOptions _cookieOptions = new()
         {
@@ -21,12 +22,13 @@ namespace Portfolio.WebApi.Controllers
             SameSite = SameSiteMode.None
         };
 
-        public AuthController(DemoAppDbContext context, IPasswordHasher passwordHasher, ITokenService tokenService, IConfiguration configuration)
+        public AuthController(DemoAppDbContext context, IPasswordHasher passwordHasher, ITokenService tokenService, IConfiguration configuration, ILogger<AuthController> logger)
         {
             _context = context;
             _passwordHasher = passwordHasher;
             _tokenService = tokenService;
             _configuration = configuration;
+            _logger = logger;
 
             bool.TryParse(_configuration.GetSection("DB:AddDefaultAdmin")?.Value ?? "false", out _addDefaultAdmin);
             CheckDefaultAdmin();
@@ -43,6 +45,8 @@ namespace Portfolio.WebApi.Controllers
             }
 
             var accessToken = ProduceAccessToken(authEmployee);
+
+            _logger.LogInformation("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: User \"{username}\" got new token", DateTimeOffset.UtcNow, username);
 
             return Json(new { accessToken, employeeId = authEmployee.Id });
         }
@@ -90,10 +94,12 @@ namespace Portfolio.WebApi.Controllers
         [HttpPost("signout")]
         public IActionResult Signout()
         {
+            var username = Request.Cookies[CookiesKeys.EMPLOYEE_NAME];
             Response.Cookies.Delete(CookiesKeys.REFRESH_TOKEN, _cookieOptions);
             Response.Cookies.Delete(CookiesKeys.EMPLOYEE_NAME, _cookieOptions);
             Response.Cookies.Delete(CookiesKeys.EMPLOYEE_ID, _cookieOptions);
 
+            _logger.LogInformation("{datetime:yyyy-MM-dd HH:mm:ss:fffff}: User \"{username}\" was sign out", DateTimeOffset.UtcNow, username);
             return Ok();
         }
 
